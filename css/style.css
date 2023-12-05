@@ -1,0 +1,10 @@
+html {
+    overflow: hidden;
+    background-color: rgb(255,120,120);
+}
+body {
+}
+canvas {
+    /*border: 1px solid red;*/
+    background-color: white;
+}
