@@ -171,7 +171,12 @@ function create()
     context = canvas.getContext("2d");
     updateSize();
     initKeyboardAndMouse([])
-    srand(2);
+    let time = new Date().getTime();
+    srand(time);
+    if (checkGameSave()==true)
+    {
+        loadGameData();
+    }
     createGameMap(cellWidth,cellHeight);
     fillgameMap(quantityKvadr)
     console.log(gameMap);
@@ -302,7 +307,7 @@ function drawLabelCorrect ()
     drawFillRectRound(screenWidth / 2 - width / 2, screenHeight / 2 - 50, width, 20, 20, 'rgb(100,255,100)');
     context.fillStyle = 'green';
     context.font = 25+'px Arial';
-    let str = 'Correct';
+    let str = 'Верно';
     let widthText=context.measureText(str).width;
     let x = screenWidth/2 - widthText / 2;
     context.fillText(str, x, screenHeight / 2-33);
@@ -317,6 +322,54 @@ function drawLabelWrong ()
     let widthText=context.measureText(str).width;
     let x = screenWidth/2 - widthText / 2;
     context.fillText(str, x, screenHeight / 2-33);
+}
+function removeDataSave()
+{
+    localStorage.removeItem('memoryMatrixSave');
+}
+function checkGameSave()
+{
+    if (localStorage.getItem('memoryMatrixSave')!=null && 
+        localStorage.getItem('memoryMatrixSave')!=undefined)
+    {
+        return true;
+    }
+    return false;
+}
+function saveGameData() 
+{
+    localStorage.setItem('memoryMatrixSave', JSON.stringify({ level:level, quantityKvadr:quantityKvadr,
+                                                            score:score,
+                                                            cellWidth:cellWidth,
+                                                            cellHeight:cellHeight }));
+}
+function loadGameData()
+{
+    let data=localStorage.getItem('memoryMatrixSave');
+    //alert(data);
+    data = JSON.parse(data);
+    
+    if (typeof(data.level)=='number')
+    {
+        level=data.level;
+    }
+    if (typeof(data.quantityKvadr)=='number')
+    {
+        quantityKvadr=data.quantityKvadr;
+    }
+    if (typeof(data.score)=='number')
+    {
+        score=data.score;
+    }
+    if (typeof(data.cellWidth)=='number')
+    {
+        cellWidth=data.cellWidth;
+    }
+    if (typeof(data.cellHeight)=='number')
+    {
+        cellHeight=data.cellHeight;
+    }
+
 }
 function gameLoop()
 {
@@ -419,6 +472,7 @@ function gameLoop()
             {
                 nextLevel();
                 countWrong = 0;
+                saveGameData();
             }
             if (resultLevel == 'wrong' && countWrong >= 2) 
             {
