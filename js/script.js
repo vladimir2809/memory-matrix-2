@@ -33,6 +33,7 @@ var clickKvadrArr = [];
 var kvadrWrongXY = {};
 var initYsdk = false;
 var ADVOpen = false;
+var lastTimeGame = 0;
 var ADV = {
     flagInGame: false,
     timerOn:false,
@@ -338,10 +339,12 @@ function checkGameSave()
 }
 function saveGameData() 
 {
+    let time = new Date().getTime();
     localStorage.setItem('memoryMatrixSave', JSON.stringify({ level:level, quantityKvadr:quantityKvadr,
                                                             score:score,
                                                             cellWidth:cellWidth,
-                                                            cellHeight:cellHeight }));
+                                                            cellHeight:cellHeight,
+                                                            time:time}));
 }
 function loadGameData()
 {
@@ -349,26 +352,41 @@ function loadGameData()
     //alert(data);
     data = JSON.parse(data);
     
-    if (typeof(data.level)=='number')
+
+    if (typeof(data.time)=='number')
     {
-        level=data.level;
+        lastTimeGame=data.time;
     }
-    if (typeof(data.quantityKvadr)=='number')
+    let time = new Date().getTime();
+    if (time<lastTimeGame+24*60*60*1000)
+    {    
+        if (typeof(data.level)=='number')
+        {
+            level=data.level;
+        }
+        if (typeof(data.quantityKvadr)=='number')
+        {
+            quantityKvadr=data.quantityKvadr;
+        }
+        if (typeof(data.score)=='number')
+        {
+            score=data.score;
+        }
+        if (typeof(data.cellWidth)=='number')
+        {
+            cellWidth=data.cellWidth;
+        }
+        if (typeof(data.cellHeight)=='number')
+        {
+            cellHeight=data.cellHeight;
+        }
+    }
+    else
     {
-        quantityKvadr=data.quantityKvadr;
+        removeDataSave()  
+
     }
-    if (typeof(data.score)=='number')
-    {
-        score=data.score;
-    }
-    if (typeof(data.cellWidth)=='number')
-    {
-        cellWidth=data.cellWidth;
-    }
-    if (typeof(data.cellHeight)=='number')
-    {
-        cellHeight=data.cellHeight;
-    }
+
 
 }
 function gameLoop()
@@ -437,7 +455,7 @@ function gameLoop()
                     if (countRightKvadr==quantityKvadr)
                     {
                         resultLevel = 'correct';
-                        score += 10 * Math.pow(2, level);
+                        //score += 10 * Math.pow(2, level);
                         stepGame = 3;
                         time = 0;
                     }
@@ -459,7 +477,11 @@ function gameLoop()
     {
         if (time>400)
         {
-            if (resultLevel=='correct') audio.play('succes');
+            if (resultLevel=='correct') 
+            {
+                audio.play('succes');
+                score += 10 * Math.pow(2, level);
+            }
             stepGame = 4;
             time = 0;
         }
